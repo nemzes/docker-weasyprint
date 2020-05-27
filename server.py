@@ -3,15 +3,15 @@
 import json
 import logging
 
-from flask import Flask, request, make_response
+from flask import Flask, Response, request, make_response
 import weasyprint
 from weasyprint import HTML
 
 app = Flask('pdf')
 
 @app.route('/health')
-def index():
-    return 'ok'
+def index():\
+    return Response('{"status": "pass"}', mimetype='application/health+json')
 
 @app.route('/version')
 def version_index():
@@ -37,16 +37,52 @@ def setup_logging():
 @app.route('/')
 def home():
     return '''
-        <h1>PDF Generator</h1>
-        <p>The following endpoints are available:</p>
-        <ul>
-            <li>POST to <code>/pdf?filename=myfile.pdf</code>. The body should
-                contain html</li>
-            <li>POST to <code>/multiple?filename=myfile.pdf</code>. The body
-                should contain a JSON list of html strings. They will each
-                be rendered and combined into a single pdf</li>
-        </ul>
-    '''
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PDF generator service</title>
+    <style>
+        html {
+            background-color: #005367;
+            font-family: sans-serif;
+            line-height: 1.5;
+        }
+        body {
+            background-color: #fff;
+            padding: 0 2rem 2rem;
+        }
+        h1 { 
+            background-color: #5b7883;
+            color: #fff;
+            margin: 0 -2rem;
+            padding: .5rem 2rem;
+         }
+    </style>
+</head>
+<body>
+    <h1>PDF generator service</h1>
+    <p>This is a wrapper service around <a href="https://weasyprint.org/">WeasyPrint</a>.</p>
+    <p>Available endpoints:</p>
+    <ul>
+        <li>
+            GET <a href="./version"><code>/version</code></a>; the WeasyPrint version.
+        </li>
+        <li>
+            GET <a href="./health"><code>/health</code></a>; service health status.
+        </li>
+        <li>
+            POST to <code>/pdf?filename=myfile.pdf</code>.<br />
+            The body should contain HTML.<br />
+            <code>filename</code> is the suggested filename for the file being returned.
+        </li>
+        <li>
+            POST to <code>/multiple?filename=myfile.pdf</code>.<br />
+            The body should contain a JSON array of HTML strings. They will each be
+            rendered and combined into a single PDF.<br />
+            <code>filename</code> is the suggested filename for the file being returned.
+        </li>
+    </ul>
+'''
 
 
 @app.route('/pdf', methods=['POST'])

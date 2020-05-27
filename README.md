@@ -1,23 +1,24 @@
-# docker-weasyprint
+# docker-weasyprint-service
 
-This is a very simple Dockerfile based on [Alpine Linux](https://www.alpinelinux.org).  It creates a very small (105MB+) [weasyprint](https://github.com/Kozea/WeasyPrint) service.  It uses a wsgi server by [aquavitae](https://github.com/aquavitae/docker-weasyprint) to provide weasyprint as a web service.
+This is a very simple Dockerfile based on [Alpine Linux](https://www.alpinelinux.org). It creates a very small (105MB+) [weasyprint](https://github.com/Kozea/WeasyPrint) service.  It uses a wsgi server by [aquavitae](https://github.com/aquavitae/docker-weasyprint) to provide WeasyPrint as a web service.
 
-A sample docker-compose configuration is as follows:
-    
-    services:
-        weasyprint:
-            build: .
-            ports:
-              - '5001:5001'
+Building:
 
-To use, `POST` some HTML to `localhost:5001/pdf`.  The response will be a rendered pdf file.
+    docker build -t weasyprint-service .
 
-### Health Checks
+Running locally:
 
-A `GET` to `localhost:5001/health` should result in an `ok` response.
+    docker run --rm -p 8000:80 --name weasyprint-01 weasyprint-service
 
-A `GET` to `localhost:5001/version` should output the weasyprint version (currently `0.39`).
+To use, `POST` some HTML to `localhost:8000/pdf`.  The response will be a rendered pdf file.
 
-### Fonts
+## Endpoints
 
-In order to make fonts available to weasyprint, simply copy them into `./fonts` and build the image.
+- GET `/version`; the WeasyPrint version.
+- GET `/health`; service health status.
+- POST to `/pdf?filename=myfile.pdf`. The body should contain HTML. `filename` is the suggested filename for the file being returned.
+- POST to `/multiple?filename=myfile.pdf`. The body should contain a JSON array of HTML strings. They will each be rendered and combined into a single PDF. `filename` is the suggested filename for the file being returned.
+
+## Fonts
+
+In order to make fonts available to WeasyPrint, copy them into `./fonts` and build the image.
